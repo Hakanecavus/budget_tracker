@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart'; // Keep for some data types like Locale/ThemeMode if needed, or remove if unused. Keep for Colors.
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
 import '../providers/locale_provider.dart';
 import '../providers/currency_provider.dart';
 import '../l10n/app_localizations.dart';
-
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -15,76 +15,167 @@ class SettingsScreen extends StatelessWidget {
     final localeProvider = Provider.of<LocaleProvider>(context);
     final currencyProvider = Provider.of<CurrencyProvider>(context);
     final l10n = AppLocalizations.of(context)!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final appBarTheme = Theme.of(context).appBarTheme;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.settings),
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        middle: Text(
+          l10n.settings,
+          style: TextStyle(color: appBarTheme.foregroundColor),
+        ),
+        transitionBetweenRoutes: false,
+        border: null,
+        backgroundColor: appBarTheme.backgroundColor,
       ),
-      body: ListView(
-        children: [
-          ListTile(
-            title: Text(l10n.theme),
-            subtitle: Text(_getThemeText(themeProvider.themeMode, l10n)),
-            trailing: DropdownButton<ThemeMode>(
-              value: themeProvider.themeMode,
-              onChanged: (ThemeMode? newMode) {
-                if (newMode != null) {
-                  themeProvider.setThemeMode(newMode);
-                }
-              },
-              items: ThemeMode.values.map((mode) {
-                return DropdownMenuItem<ThemeMode>(
-                  value: mode,
-                  child: Text(_getThemeText(mode, l10n)),
-                );
-              }).toList(),
-            ),
-          ),
-          ListTile(
-            title: Text(l10n.language),
-            subtitle: Text(_getLanguageText(localeProvider.locale, l10n)),
-            trailing: DropdownButton<Locale>(
-              value: localeProvider.locale,
-              onChanged: (Locale? newLocale) {
-                if (newLocale != null) {
-                  localeProvider.setLocale(newLocale);
-                }
-              },
-              items: const [
-                DropdownMenuItem(
-                  value: Locale('en'),
-                  child: Text('English'),
-                ),
-                DropdownMenuItem(
-                  value: Locale('es'),
-                  child: Text('Español'),
-                ),
-                DropdownMenuItem(
-                  value: Locale('tr'),
-                  child: Text('Türkçe'),
+      backgroundColor: isDark
+          ? Colors.black
+          : CupertinoColors.systemGroupedBackground,
+      child: SafeArea(
+        child: NotificationListener<ScrollNotification>(
+          onNotification: (notification) => true,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                CupertinoFormSection.insetGrouped(
+                  header: Text(l10n.settings.toUpperCase()),
+                  children: [
+                    // Theme
+                    CupertinoFormRow(
+                      prefix: Text(l10n.theme),
+                      child: CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        child: Text(
+                          _getThemeText(themeProvider.themeMode, l10n),
+                        ),
+                        onPressed: () =>
+                            _showThemePicker(context, themeProvider, l10n),
+                      ),
+                    ),
+
+                    // Language
+                    CupertinoFormRow(
+                      prefix: Text(l10n.language),
+                      child: CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        child: Text(
+                          _getLanguageText(localeProvider.locale, l10n),
+                        ),
+                        onPressed: () =>
+                            _showLanguagePicker(context, localeProvider, l10n),
+                      ),
+                    ),
+
+                    // Currency
+                    CupertinoFormRow(
+                      prefix: Text(l10n.currency),
+                      child: CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        child: Text(
+                          _getCurrencyText(currencyProvider.currency, l10n),
+                        ),
+                        onPressed: () => _showCurrencyPicker(
+                          context,
+                          currencyProvider,
+                          l10n,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
-          ListTile(
-            title: Text(l10n.currency),
-            subtitle: Text(_getCurrencyText(currencyProvider.currency, l10n)),
-            trailing: DropdownButton<String>(
-              value: currencyProvider.currency,
-              onChanged: (String? newCurrency) {
-                if (newCurrency != null) {
-                  currencyProvider.setCurrency(newCurrency);
-                }
-              },
-              items: CurrencyProvider.currencyOptions.keys.map((symbol) {
-                return DropdownMenuItem<String>(
-                  value: symbol,
-                  child: Text(_getCurrencyText(symbol, l10n)),
-                );
-              }).toList(),
-            ),
-          ),
-        ],
+        ),
+      ),
+    );
+  }
+
+  void _showThemePicker(
+    BuildContext context,
+    ThemeProvider provider,
+    AppLocalizations l10n,
+  ) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (context) => CupertinoActionSheet(
+        title: Text(l10n.theme),
+        actions: ThemeMode.values.map((mode) {
+          return CupertinoActionSheetAction(
+            onPressed: () {
+              provider.setThemeMode(mode);
+              Navigator.pop(context);
+            },
+            child: Text(_getThemeText(mode, l10n)),
+          );
+        }).toList(),
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.pop(context),
+          isDestructiveAction: true,
+          child: Text(l10n.cancel),
+        ),
+      ),
+    );
+  }
+
+  void _showLanguagePicker(
+    BuildContext context,
+    LocaleProvider provider,
+    AppLocalizations l10n,
+  ) {
+    final locales = [
+      const Locale('en'),
+      const Locale('es'),
+      const Locale('tr'),
+    ];
+
+    showCupertinoModalPopup(
+      context: context,
+      builder: (context) => CupertinoActionSheet(
+        title: Text(l10n.language),
+        actions: locales.map((locale) {
+          return CupertinoActionSheetAction(
+            onPressed: () {
+              provider.setLocale(locale);
+              Navigator.pop(context);
+            },
+            child: Text(_getLanguageText(locale, l10n)),
+          );
+        }).toList(),
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.pop(context),
+          isDestructiveAction: true,
+          child: Text(l10n.cancel),
+        ),
+      ),
+    );
+  }
+
+  void _showCurrencyPicker(
+    BuildContext context,
+    CurrencyProvider provider,
+    AppLocalizations l10n,
+  ) {
+    final currencies = CurrencyProvider.currencyOptions.keys.toList();
+
+    showCupertinoModalPopup(
+      context: context,
+      builder: (context) => CupertinoActionSheet(
+        title: Text(l10n.currency),
+        actions: currencies.map((symbol) {
+          return CupertinoActionSheetAction(
+            onPressed: () {
+              provider.setCurrency(symbol);
+              Navigator.pop(context);
+            },
+            child: Text(_getCurrencyText(symbol, l10n)),
+          );
+        }).toList(),
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.pop(context),
+          isDestructiveAction: true,
+          child: Text(l10n.cancel),
+        ),
       ),
     );
   }

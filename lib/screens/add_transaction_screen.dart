@@ -1,180 +1,555 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
+import 'package:intl/intl.dart';
 import '../providers/transaction_provider.dart';
 import '../providers/category_provider.dart';
+import '../providers/currency_provider.dart';
 import '../models/transaction.dart';
 import '../models/category.dart';
 import '../providers/locale_provider.dart';
 import '../l10n/app_localizations.dart';
-import 'package:intl/intl.dart';
 
-class AddTransactionScreen extends StatefulWidget {
+class AddTransactionSheet extends StatefulWidget {
   final DateTime selectedDate;
+  final Transaction? transaction;
 
-  const AddTransactionScreen({super.key, required this.selectedDate});
+  const AddTransactionSheet({
+    super.key,
+    required this.selectedDate,
+    this.transaction,
+  });
 
   @override
-  State<AddTransactionScreen> createState() => _AddTransactionScreenState();
+  State<AddTransactionSheet> createState() => _AddTransactionSheetState();
 }
 
-class _AddTransactionScreenState extends State<AddTransactionScreen> {
-  final _formKey = GlobalKey<FormState>();
+class _AddTransactionSheetState extends State<AddTransactionSheet> {
   final _amountController = TextEditingController();
+  final _explanationController = TextEditingController();
   bool _isIncome = true;
+  bool _isRecurring = false;
   String? _selectedCategoryId;
-  DateTime _date;
-
-  _AddTransactionScreenState() : _date = DateTime.now();
+  late DateTime _date;
+  late DateTime _endDate;
 
   @override
   void initState() {
     super.initState();
     _date = widget.selectedDate;
+    _endDate = widget.selectedDate.add(
+      const Duration(days: 90),
+    ); // Default 3 months
+    if (widget.transaction != null) {
+      _amountController.text = widget.transaction!.amount.toString();
+      _isIncome = widget.transaction!.isIncome;
+      _selectedCategoryId = widget.transaction!.categoryId;
+      _date = widget.transaction!.date;
+      _explanationController.text = widget.transaction!.explanation;
+    }
+  }
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    _explanationController.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    if (_amountController.text.isEmpty ||
+        double.tryParse(_amountController.text) == null) {
+      return;
+    }
+
+    final transactionProvider = Provider.of<TransactionProvider>(
+      context,
+      listen: false,
+    );
+    final categoryId =
+        _selectedCategoryId ??
+        (_isIncome ? 'unknown_income' : 'unknown_expense');
+
+    // Validate if category exists, else fallback
+    final categoryProvider = Provider.of<CategoryProvider>(
+      context,
+      listen: false,
+    );
+    final categoryExists = categoryProvider.categories.any(
+      (cat) => cat.id == categoryId,
+    );
+    final finalCategoryId = categoryExists
+        ? categoryId
+        : (_isIncome ? 'unknown_income' : 'unknown_expense');
+
+    if (widget.transaction == null) {
+      if (_isRecurring) {
+        final List<Transaction> recurringTransactions = [];
+        final uuid = const Uuid();
+        DateTime current = _date;
+
+        while (current.isBefore(_endDate) ||
+            (current.year == _endDate.year &&
+                current.month == _endDate.month &&
+                current.day == _endDate.day)) {
+          recurringTransactions.add(
+            Transaction(
+              id: uuid.v4(),
+              amount: double.parse(_amountController.text),
+              isIncome: _isIncome,
+              categoryId: finalCategoryId,
+              date: current,
+              explanation: _explanationController.text,
+            ),
+          );
+
+          // Move to the same day of the next month
+          int nextMonth = current.month + 1;
+          int nextYear = current.year;
+          if (nextMonth > 12) {
+            nextMonth = 1;
+            nextYear++;
+          }
+
+          // Handle shorter months (e.g., Jan 31 -> Feb 28)
+          int lastDayOfNextMonth = DateTime(nextYear, nextMonth + 1, 0).day;
+          int nextDay = _date.day > lastDayOfNextMonth
+              ? lastDayOfNextMonth
+              : _date.day;
+
+          current = DateTime(nextYear, nextMonth, nextDay);
+        }
+        transactionProvider.addTransactions(recurringTransactions);
+      } else {
+        final uuid = const Uuid();
+        final newTransaction = Transaction(
+          id: uuid.v4(),
+          amount: double.parse(_amountController.text),
+          isIncome: _isIncome,
+          categoryId: finalCategoryId,
+          date: _date,
+          explanation: _explanationController.text,
+        );
+        transactionProvider.addTransaction(newTransaction);
+      }
+    } else {
+      final updatedTransaction = Transaction(
+        id: widget.transaction!.id,
+        amount: double.parse(_amountController.text),
+        isIncome: _isIncome,
+        categoryId: finalCategoryId,
+        date: _date,
+        explanation: _explanationController.text,
+      );
+      transactionProvider.updateTransaction(updatedTransaction);
+    }
+    Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
     final categoryProvider = Provider.of<CategoryProvider>(context);
     final localeProvider = Provider.of<LocaleProvider>(context);
+    final currencyProvider = Provider.of<CurrencyProvider>(context);
     final l10n = AppLocalizations.of(context)!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    // Filter categories based on selected type
+    final displayedCategories = categoryProvider.categories.where((cat) {
+      return _isIncome
+          ? cat.type == CategoryType.income
+          : cat.type == CategoryType.expense;
+    }).toList();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.addTransaction),
+    // Bottom padding for keyboard and safe area
+    final bottomPadding =
+        MediaQuery.of(context).viewInsets.bottom +
+        MediaQuery.of(context).padding.bottom +
+        20;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1C1C1E) : Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
+      padding: EdgeInsets.only(
+        top: 20,
+        left: 20,
+        right: 20,
+        bottom: bottomPadding,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Drag Handle
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[400],
+                borderRadius: BorderRadius.circular(2),
+              ),
+              margin: const EdgeInsets.only(bottom: 20),
+            ),
+          ),
+
+          // Header
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-                TextFormField(
-                  controller: _amountController,
-                  decoration: InputDecoration(labelText: l10n.amount),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter an amount';
-                  }
-                  if (double.tryParse(value) == null) {
-                    return 'Please enter a valid number';
-                  }
-                  return null;
-                },
+              Text(
+                widget.transaction == null
+                    ? l10n.addTransaction
+                    : l10n.editTransaction,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Text('${l10n.type}:'),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Row(
-                      children: [
-                        Radio<bool>(
-                          value: true,
-                          groupValue: _isIncome,
-                          onChanged: (value) {
-                            setState(() {
-                              _isIncome = value!;
-                            });
-                          },
-                        ),
-                        Text(l10n.income),
-                        Radio<bool>(
-                          value: false,
-                          groupValue: _isIncome,
-                          onChanged: (value) {
-                            setState(() {
-                              _isIncome = value!;
-                            });
-                          },
-                        ),
-                        Text(l10n.expense),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  value: _selectedCategoryId,
-                  decoration: InputDecoration(labelText: l10n.category),
-                items: categoryProvider.categories
-                    .where((category) =>
-                        (_isIncome && category.type == CategoryType.income) ||
-                        (!_isIncome && category.type == CategoryType.expense))
-                    .map((category) {
-                  return DropdownMenuItem<String>(
-                    value: category.id,
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          backgroundColor: category.color,
-                          radius: 10,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(category.name),
-                      ],
-                    ),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedCategoryId = value;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Text('${l10n.date}:'),
-                    const SizedBox(width: 16),
-                    TextButton(
-                      onPressed: () => _selectDate(context),
-                      child: Text(DateFormat.yMd(localeProvider.locale.toString()).format(_date)),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    final transactionProvider = Provider.of<TransactionProvider>(context, listen: false);
-                    final uuid = Uuid();
-                    final categoryId = _selectedCategoryId ?? (_isIncome ? 'unknown_income' : 'unknown_expense');
-                    final newTransaction = Transaction(
-                      id: uuid.v4(),
-                      amount: double.parse(_amountController.text),
-                      isIncome: _isIncome,
-                      categoryId: categoryId,
-                      date: _date,
-                    );
-                    transactionProvider.addTransaction(newTransaction);
-                    Navigator.of(context).pop();
-                  }
-                },
-                child: Text(l10n.saveTransaction),
+              GestureDetector(
+                onTap: () => Navigator.of(context).pop(),
+                child: CircleAvatar(
+                  radius: 15,
+                  backgroundColor: Colors.grey.withOpacity(0.2),
+                  child: const Icon(Icons.close, size: 18, color: Colors.grey),
+                ),
               ),
             ],
           ),
+          const SizedBox(height: 20),
+
+          // Type Segmented Control
+          SizedBox(
+            width: double.infinity,
+            child: CupertinoSegmentedControl<bool>(
+              children: {
+                true: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 8,
+                  ),
+                  child: Text(l10n.income),
+                ),
+                false: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 8,
+                  ),
+                  child: Text(l10n.expense),
+                ),
+              },
+              onValueChanged: (bool val) {
+                setState(() {
+                  _isIncome = val;
+                  _selectedCategoryId = null; // Reset selection on type change
+                });
+              },
+              groupValue: _isIncome,
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // Amount Input
+          CupertinoTextField(
+            controller: _amountController,
+            placeholder: l10n.amount,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF2C2C2E) : const Color(0xFFF2F2F7),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : Colors.black,
+            ),
+            prefix: Padding(
+              padding: const EdgeInsets.only(left: 16),
+              child: Text(
+                currencyProvider.currency,
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.grey : Colors.grey[600],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // Date Picker Text
+          GestureDetector(
+            onTap: () => _showDatePicker(context, localeProvider),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: isDark
+                    ? const Color(0xFF2C2C2E)
+                    : const Color(0xFFF2F2F7),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    CupertinoIcons.calendar,
+                    size: 20,
+                    color: Colors.grey,
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    DateFormat.yMMMd(
+                      localeProvider.locale.toString(),
+                    ).format(_date),
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // Horizontal Category List
+          Text(
+            l10n.category,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey,
+            ),
+          ),
+          const SizedBox(height: 10),
+          SizedBox(
+            height: 90,
+            child: displayedCategories.isEmpty
+                ? Center(
+                    child: Text(
+                      l10n.noCategories,
+                      style: const TextStyle(color: Colors.grey),
+                    ),
+                  )
+                : ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: displayedCategories.length,
+                    itemBuilder: (context, index) {
+                      final category = displayedCategories[index];
+                      final isSelected = _selectedCategoryId == category.id;
+
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedCategoryId = category.id;
+                          });
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.only(right: 16),
+                          width: 70,
+                          child: Column(
+                            children: [
+                              Container(
+                                width: 50,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  color: category.color,
+                                  shape: BoxShape.circle,
+                                  border: isSelected
+                                      ? Border.all(
+                                          color: isDark
+                                              ? Colors.white
+                                              : Colors.black,
+                                          width: 3,
+                                        )
+                                      : null,
+                                  boxShadow: isSelected
+                                      ? [
+                                          BoxShadow(
+                                            color: category.color.withOpacity(
+                                              0.4,
+                                            ),
+                                            blurRadius: 8,
+                                            spreadRadius: 2,
+                                          ),
+                                        ]
+                                      : null,
+                                ),
+                                child: isSelected
+                                    ? const Icon(
+                                        Icons.check,
+                                        color: Colors.white,
+                                      )
+                                    : null,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                category.name,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: isSelected
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+          ),
+          const SizedBox(height: 10),
+
+          // Recurring Toggle
+          if (widget.transaction == null) ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(l10n.isRecurring, style: const TextStyle(fontSize: 16)),
+                CupertinoSwitch(
+                  value: _isRecurring,
+                  onChanged: (val) {
+                    setState(() {
+                      _isRecurring = val;
+                      if (_isRecurring && _endDate.isBefore(_date)) {
+                        _endDate = _date.add(const Duration(days: 30));
+                      }
+                    });
+                  },
+                ),
+              ],
+            ),
+            if (_isRecurring) ...[
+              const SizedBox(height: 10),
+              GestureDetector(
+                onTap: () => _showEndDatePicker(context, localeProvider),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? const Color(0xFF2C2C2E)
+                        : const Color(0xFFF2F2F7),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        CupertinoIcons.calendar_badge_minus,
+                        size: 20,
+                        color: Colors.redAccent,
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        "${l10n.endDate}: ${DateFormat.yMMMd(localeProvider.locale.toString()).format(_endDate)}",
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+            const SizedBox(height: 10),
+          ],
+
+          // Explanation Input
+          CupertinoTextField(
+            controller: _explanationController,
+            placeholder: l10n.explanation,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF2C2C2E) : const Color(0xFFF2F2F7),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            maxLines: 3,
+            minLines: 1,
+          ),
+          const SizedBox(height: 24),
+
+          // Action Button
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: ElevatedButton(
+              onPressed: _submit,
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                backgroundColor: Theme.of(context).primaryColor,
+                foregroundColor: Colors.white,
+                elevation: 0,
+              ),
+              child: Text(
+                widget.transaction == null ? l10n.add : l10n.update,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDatePicker(BuildContext context, LocaleProvider localeProvider) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (_) => Container(
+        height: 250,
+        color: Theme.of(context).scaffoldBackgroundColor,
+        child: Column(
+          children: [
+            SizedBox(
+              height: 250,
+              child: CupertinoDatePicker(
+                initialDateTime: _date,
+                mode: CupertinoDatePickerMode.date,
+                use24hFormat: true,
+                onDateTimeChanged: (val) {
+                  setState(() {
+                    _date = val;
+                  });
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
+  void _showEndDatePicker(BuildContext context, LocaleProvider localeProvider) {
+    showCupertinoModalPopup(
       context: context,
-      initialDate: _date,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2030),
+      builder: (_) => Container(
+        height: 250,
+        color: Theme.of(context).scaffoldBackgroundColor,
+        child: Column(
+          children: [
+            SizedBox(
+              height: 250,
+              child: CupertinoDatePicker(
+                initialDateTime: _endDate,
+                mode: CupertinoDatePickerMode.date,
+                minimumDate: _date,
+                onDateTimeChanged: (val) {
+                  setState(() {
+                    _endDate = val;
+                  });
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
     );
-    if (picked != null && picked != _date) {
-      setState(() {
-        _date = picked;
-      });
-    }
   }
 }

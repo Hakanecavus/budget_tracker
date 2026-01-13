@@ -6,6 +6,7 @@ class Transaction {
   final bool isIncome;
   final String categoryId;
   final DateTime date;
+  final String explanation;
 
   Transaction({
     required this.id,
@@ -13,6 +14,7 @@ class Transaction {
     required this.isIncome,
     required this.categoryId,
     required this.date,
+    this.explanation = '',
   });
 
   Map<String, dynamic> toJson() {
@@ -22,6 +24,7 @@ class Transaction {
       'isIncome': isIncome,
       'categoryId': categoryId,
       'date': DateFormat('yyyy-MM-dd').format(date),
+      'explanation': explanation,
     };
   }
 
@@ -32,6 +35,7 @@ class Transaction {
       isIncome: json['isIncome'],
       categoryId: json['categoryId'],
       date: DateFormat('yyyy-MM-dd').parse(json['date']),
+      explanation: json['explanation'] ?? '',
     );
   }
 }

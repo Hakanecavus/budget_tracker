@@ -86,10 +86,19 @@ class AppLocalizationsTr extends AppLocalizations {
   String get date => 'Tarih';
 
   @override
+  String get explanation => 'Açıklama';
+
+  @override
   String get addTransaction => 'İşlem Ekle';
 
   @override
+  String get editTransaction => 'İşlemi Düzenle';
+
+  @override
   String get saveTransaction => 'İşlemi Kaydet';
+
+  @override
+  String get updateTransaction => 'İşlemi Güncelle';
 
   @override
   String get theme => 'Tema';
@@ -153,4 +162,25 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get inr => 'Hint Rupisi (INR)';
+
+  @override
+  String get noCategories => 'Kategori bulunamadı';
+
+  @override
+  String get update => 'Güncelle';
+
+  @override
+  String get breakdown => 'Detaylar';
+
+  @override
+  String get total => 'Toplam';
+
+  @override
+  String get recurring => 'Tekrarlayan';
+
+  @override
+  String get isRecurring => 'Tekrarlayan İşlem mi?';
+
+  @override
+  String get endDate => 'Bitiş Tarihi';
 }

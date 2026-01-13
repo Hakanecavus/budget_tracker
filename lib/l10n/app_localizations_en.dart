@@ -86,10 +86,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get date => 'Date';
 
   @override
+  String get explanation => 'Explanation';
+
+  @override
   String get addTransaction => 'Add Transaction';
 
   @override
+  String get editTransaction => 'Edit Transaction';
+
+  @override
   String get saveTransaction => 'Save Transaction';
+
+  @override
+  String get updateTransaction => 'Update Transaction';
 
   @override
   String get theme => 'Theme';
@@ -153,4 +162,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get inr => 'Indian Rupee (INR)';
+
+  @override
+  String get noCategories => 'No categories available';
+
+  @override
+  String get update => 'Update';
+
+  @override
+  String get breakdown => 'Details';
+
+  @override
+  String get total => 'Total';
+
+  @override
+  String get recurring => 'Recurring';
+
+  @override
+  String get isRecurring => 'Is Recurring?';
+
+  @override
+  String get endDate => 'End Date';
 }

@@ -247,17 +247,35 @@ abstract class AppLocalizations {
   /// **'Date'**
   String get date;
 
+  /// No description provided for @explanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Explanation'**
+  String get explanation;
+
   /// No description provided for @addTransaction.
   ///
   /// In en, this message translates to:
   /// **'Add Transaction'**
   String get addTransaction;
 
+  /// No description provided for @editTransaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Transaction'**
+  String get editTransaction;
+
   /// No description provided for @saveTransaction.
   ///
   /// In en, this message translates to:
   /// **'Save Transaction'**
   String get saveTransaction;
+
+  /// No description provided for @updateTransaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Transaction'**
+  String get updateTransaction;
 
   /// No description provided for @theme.
   ///
@@ -384,6 +402,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Indian Rupee (INR)'**
   String get inr;
+
+  /// No description provided for @noCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'No categories available'**
+  String get noCategories;
+
+  /// No description provided for @update.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get update;
+
+  /// No description provided for @breakdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get breakdown;
+
+  /// No description provided for @total.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get total;
+
+  /// No description provided for @recurring.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurring'**
+  String get recurring;
+
+  /// No description provided for @isRecurring.
+  ///
+  /// In en, this message translates to:
+  /// **'Is Recurring?'**
+  String get isRecurring;
+
+  /// No description provided for @endDate.
+  ///
+  /// In en, this message translates to:
+  /// **'End Date'**
+  String get endDate;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

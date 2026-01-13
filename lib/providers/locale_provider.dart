@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -13,8 +14,22 @@ class LocaleProvider with ChangeNotifier {
 
   Future<void> _loadLocale() async {
     final prefs = await SharedPreferences.getInstance();
-    final localeString = prefs.getString(_localeKey) ?? 'en';
-    _locale = Locale(localeString);
+    final String? savedLocale = prefs.getString(_localeKey);
+
+    if (savedLocale != null) {
+      _locale = Locale(savedLocale);
+    } else {
+      // First run: Check system locale
+      final String systemLanguage =
+          PlatformDispatcher.instance.locale.languageCode;
+      if (systemLanguage == 'tr' || systemLanguage == 'es') {
+        _locale = Locale(systemLanguage);
+      } else {
+        _locale = const Locale('en');
+      }
+      // Save it as the initial choice if you want to persist the first-time detection immediately
+      // For now, we just set the _locale. If the user changes it, it will be saved.
+    }
     notifyListeners();
   }
 

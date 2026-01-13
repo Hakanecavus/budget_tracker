@@ -10,7 +10,10 @@ import 'providers/currency_provider.dart';
 import 'screens/main_screen.dart';
 // import 'l10n/app_localizations.dart';
 
-void main() {
+import 'package:intl/date_symbol_data_local.dart';
+
+void main() async {
+  await initializeDateFormatting();
   runApp(const MyApp());
 }
 
@@ -32,35 +35,8 @@ class MyApp extends StatelessWidget {
         builder: (context, themeProvider, localeProvider, child) {
           return MaterialApp(
             title: 'Budget Tracker',
-            theme: ThemeData(
-              colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-              useMaterial3: true,
-              appBarTheme: const AppBarTheme(
-                backgroundColor: Colors.deepPurple,
-                foregroundColor: Colors.white,
-              ),
-              bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-                backgroundColor: Colors.white,
-                selectedItemColor: Colors.deepPurple,
-                unselectedItemColor: Colors.grey,
-              ),
-            ),
-            darkTheme: ThemeData(
-              colorScheme: ColorScheme.fromSeed(
-                seedColor: Colors.deepPurple,
-                brightness: Brightness.dark,
-              ),
-              useMaterial3: true,
-              appBarTheme: const AppBarTheme(
-                backgroundColor: Color(0xFF1A1A1A),
-                foregroundColor: Colors.white,
-              ),
-              bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-                backgroundColor: Color(0xFF1A1A1A),
-                selectedItemColor: Colors.deepPurpleAccent,
-                unselectedItemColor: Colors.grey,
-              ),
-            ),
+            theme: themeProvider.lightTheme,
+            darkTheme: themeProvider.darkTheme,
             themeMode: themeProvider.themeMode,
             locale: localeProvider.locale,
             localizationsDelegates: const [
@@ -69,11 +45,7 @@ class MyApp extends StatelessWidget {
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
-            supportedLocales: const [
-              Locale('en'),
-              Locale('es'),
-              Locale('tr'),
-            ],
+            supportedLocales: const [Locale('en'), Locale('es'), Locale('tr')],
             home: const MainScreen(),
           );
         },

@@ -17,13 +17,17 @@ class TransactionProvider with ChangeNotifier {
   Future<void> _loadTransactions() async {
     final prefs = await SharedPreferences.getInstance();
     final transactionsJson = prefs.getStringList(_transactionsKey) ?? [];
-    _transactions = transactionsJson.map((json) => Transaction.fromJson(jsonDecode(json))).toList();
+    _transactions = transactionsJson
+        .map((json) => Transaction.fromJson(jsonDecode(json)))
+        .toList();
     notifyListeners();
   }
 
   Future<void> _saveTransactions() async {
     final prefs = await SharedPreferences.getInstance();
-    final transactionsJson = _transactions.map((txn) => jsonEncode(txn.toJson())).toList();
+    final transactionsJson = _transactions
+        .map((txn) => jsonEncode(txn.toJson()))
+        .toList();
     await prefs.setStringList(_transactionsKey, transactionsJson);
   }
 
@@ -33,8 +37,16 @@ class TransactionProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void addTransactions(List<Transaction> transactions) {
+    _transactions.addAll(transactions);
+    _saveTransactions();
+    notifyListeners();
+  }
+
   void updateTransaction(Transaction updatedTransaction) {
-    final index = _transactions.indexWhere((txn) => txn.id == updatedTransaction.id);
+    final index = _transactions.indexWhere(
+      (txn) => txn.id == updatedTransaction.id,
+    );
     if (index != -1) {
       _transactions[index] = updatedTransaction;
       _saveTransactions();
@@ -49,11 +61,15 @@ class TransactionProvider with ChangeNotifier {
   }
 
   double get totalIncome {
-    return _transactions.where((txn) => txn.isIncome).fold(0.0, (sum, txn) => sum + txn.amount);
+    return _transactions
+        .where((txn) => txn.isIncome)
+        .fold(0.0, (sum, txn) => sum + txn.amount);
   }
 
   double get totalExpense {
-    return _transactions.where((txn) => !txn.isIncome).fold(0.0, (sum, txn) => sum + txn.amount);
+    return _transactions
+        .where((txn) => !txn.isIncome)
+        .fold(0.0, (sum, txn) => sum + txn.amount);
   }
 
   double get balance => totalIncome - totalExpense;

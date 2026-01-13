@@ -4,19 +4,20 @@ This file contains instructions for agentic coding agents working on the budget_
 
 ## Overview
 
-The budget_tracker is a Flutter mobile application for tracking personal finances with international support. It allows users to:
+The budget_tracker is a Flutter mobile application for tracking personal finances with international support. It allows users to add explanations to transactions, edit them via tap, and view detailed reports with month/year filtering:
 
 **Core Features:**
 - Create color-coded categories for income and expenses (with type classification)
-- Add transactions (income/expense) linked to categories and dates
+- Add transactions (income/expense) linked to categories and dates with optional explanations
+- Edit transactions by tapping on calendar entries
 - View transactions on a localized calendar with color-coded markers
 - See total income, expenses, and balance at the top of the calendar
 - Swipe-to-delete transactions and categories with confirmation dialogs
 
 **Advanced Features:**
-- **Reports Screen**: Pie chart visualizations for income vs expense breakdowns
-- **Theme Support**: Light, dark, and system theme modes
-- **Multi-language**: English, Spanish, and Turkish localization
+- **Reports Screen**: Pie chart visualizations with month/year selection for income vs expense category breakdowns
+- **Theme Support**: Light, dark, and system theme modes with adaptive UI elements
+- **Multi-language**: English, Spanish, and Turkish localization including month names
 - **Calendar Integration**: Localized date formatting and selection
 - **Data Persistence**: Local storage with SharedPreferences
 
@@ -246,3 +247,48 @@ Generated localization classes are in `lib/l10n/app_localizations*.dart`. Run `f
 - Keep the pubspec.yaml dependencies minimal and up-to-date
 - Follow semantic versioning for any published packages
 - Document any new patterns or conventions introduced in this file
+
+## Agents Work Log
+
+### 2026-01-10
+
+#### UI Standardization & Modernization
+- **Reports Screen**: 
+    - Converted to `CupertinoPageScaffold`.
+    - REFACTORED layout to use a **CupertinoSegmentedControl** for switching between Income and Expense charts.
+    - REPLACED drop-down date pickers with native scrollable **CupertinoPickers**.
+    - **Chart Enhancement**: Touching a chart slice now displays the **Category Name** and **Total Value** (with currency).
+- **Settings Screen**:
+    - Converted to `CupertinoPageScaffold`.
+    - Used `CupertinoFormSection` for iOS-style grouped settings.
+    - Replaced dropdowns with **CupertinoActionSheets**.
+- **Add Transaction UI**:
+    - MODERNIZED from a full-page screen to a **Modal Bottom Sheet** (`AddTransactionSheet`).
+    - Implemented a more efficient form with:
+        - Segmented Control for Transaction Type.
+        - Horizontal Scrollable Category List.
+        - Large, clear Amount Input with dynamic **Currency Symbol** (matches Settings).
+        - Native iOS Date Picker.
+- **Home Screen**:
+    - Updated navigation to launch `AddTransactionSheet` via `showModalBottomSheet`.
+    - **Localization Fix**: Calendar now correctly starts on **Monday** for Turkish locale, and Sunday for others.
+
+#### Bug Fixes
+- Fixed `Dismissible` crash in Category Screen (removed nested scaffold).
+- Fixed "Add Category" button visibility issue (z-index/tab bar overlap).
+### 2026-01-13
+
+#### App Icon & Renaming
+- **App Icons**: Configured `flutter_launcher_icons` and generated icons for Android and iOS using the new `assets/icons` folder.
+- **Application Renaming**: Changed the application display name to **ParaDefteri** across all platforms:
+    - Android (`AndroidManifest.xml`)
+    - iOS (`Info.plist`)
+    - Web (`index.html`)
+    - MacOS (`AppInfo.xcconfig`)
+    - Windows (`main.cpp`)
+    - Linux (`my_application.cc`)
+
+#### APK Size Optimization
+- **Build Optimization**: Enabled R8 shrinking and obfuscation in `build.gradle.kts` for release builds.
+- **Asset Cleanup**: Removed large source image files and restricted bundled assets in `pubspec.yaml` to include only required production assets.
+- **Build Fixes**: Resolved Kotlin DSL syntax errors and updated deprecated `jvmTarget` configuration in Android build scripts.

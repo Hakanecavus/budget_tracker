@@ -41,11 +41,11 @@ class _MainScreenState extends State<MainScreen> {
             label: l10n.home,
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.category),
+            icon: const Icon(Icons.dataset),
             label: l10n.categories,
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.bar_chart),
+            icon: const Icon(Icons.pie_chart),
             label: l10n.reports,
           ),
           BottomNavigationBarItem(
