@@ -57,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         middle: Text(
-          'Budget Tracker',
+          'Cüzdanım',
           style: TextStyle(color: appBarTheme.foregroundColor),
         ),
         transitionBetweenRoutes: false,
