@@ -16,15 +16,12 @@ class AdProvider with ChangeNotifier {
   // Test Ad Unit IDs
   String get interstitialAdUnitId {
     // if (Platform.isAndroid) {
-    //   return 'ca-app-pub-4328553347790791/1953004551';
+    //   return 'ca-app-pub-3940256099942544/1033173712';
     // } else if (Platform.isIOS) {
-    //   return 'ca-app-pub-4328553347790791/4780130830';
+    //   return 'ca-app-pub-3940256099942544/4411468910';
     // } else {
     //   throw UnsupportedError('Unsupported platform');
     // }
-    // return Platform.isAndroid
-    //     ? 'ca-app-pub-3940256099942544/1033173712'
-    //     : 'ca-app-pub-3940256099942544/4411468910';
     return Platform.isAndroid
         ? 'ca-app-pub-4328553347790791/1953004551'
         : 'ca-app-pub-4328553347790791/4780130830';
