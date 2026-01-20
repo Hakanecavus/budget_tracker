@@ -98,15 +98,21 @@ class _MainScreenContent extends StatefulWidget {
 }
 
 class _MainScreenContentState extends State<_MainScreenContent> {
+  bool _isTutorialStarted = false;
+
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final tutorialProvider = Provider.of<TutorialProvider>(
-        context,
-        listen: false,
-      );
-      if (!tutorialProvider.isTutorialCompleted) {
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _checkAndStartTutorial();
+  }
+
+  void _checkAndStartTutorial() {
+    final tutorialProvider = Provider.of<TutorialProvider>(context);
+    if (tutorialProvider.isInitialized &&
+        !tutorialProvider.isTutorialCompleted &&
+        !_isTutorialStarted) {
+      _isTutorialStarted = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         ShowCaseWidget.of(context).startShowCase([
           widget.addTransactionKey,
           widget.categoriesTabKey,
@@ -114,8 +120,13 @@ class _MainScreenContentState extends State<_MainScreenContent> {
           widget.reportsTabKey,
           widget.reportsContentKey,
         ]);
-      }
-    });
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
   }
 
   @override

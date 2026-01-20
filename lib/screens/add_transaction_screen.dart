@@ -9,6 +9,7 @@ import '../providers/currency_provider.dart';
 import '../models/transaction.dart';
 import '../models/category.dart';
 import '../providers/locale_provider.dart';
+import '../providers/ad_provider.dart';
 import '../l10n/app_localizations.dart';
 
 class AddTransactionSheet extends StatefulWidget {
@@ -144,6 +145,11 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
       );
       transactionProvider.updateTransaction(updatedTransaction);
     }
+
+    // Trigger Ad Logic
+    final adProvider = Provider.of<AdProvider>(context, listen: false);
+    adProvider.incrementTransactionActionCount();
+
     Navigator.of(context).pop();
   }
 
