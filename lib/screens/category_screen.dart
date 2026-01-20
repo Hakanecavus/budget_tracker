@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
+import 'package:showcaseview/showcaseview.dart';
 import '../providers/category_provider.dart';
 import '../models/category.dart';
 import '../l10n/app_localizations.dart';
 
 class CategoryScreen extends StatefulWidget {
-  const CategoryScreen({super.key});
+  final GlobalKey? addCategoryKey;
+  const CategoryScreen({super.key, this.addCategoryKey});
 
   @override
   State<CategoryScreen> createState() => _CategoryScreenState();
@@ -43,10 +45,15 @@ class _CategoryScreenState extends State<CategoryScreen> {
         transitionBetweenRoutes: false,
         border: null,
         backgroundColor: appBarTheme.backgroundColor,
-        trailing: CupertinoButton(
-          padding: EdgeInsets.zero,
-          child: Icon(CupertinoIcons.add, color: appBarTheme.foregroundColor),
-          onPressed: () => _showAddCategoryDialog(context),
+        trailing: Showcase(
+          key: widget.addCategoryKey ?? GlobalKey(),
+          title: l10n.tutorialAddCategoryTitle,
+          description: l10n.tutorialAddCategoryDesc,
+          child: CupertinoButton(
+            padding: EdgeInsets.zero,
+            child: Icon(CupertinoIcons.add, color: appBarTheme.foregroundColor),
+            onPressed: () => _showAddCategoryDialog(context),
+          ),
         ),
       ),
       child: SafeArea(

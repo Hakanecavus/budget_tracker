@@ -183,4 +183,40 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get endDate => 'Bitiş Tarihi';
+
+  @override
+  String get tutorialAddTransactionTitle => 'İşlem Ekle';
+
+  @override
+  String get tutorialAddTransactionDesc => 'İlk gelirinizi veya giderinizi eklemek için buraya dokunun.';
+
+  @override
+  String get tutorialCategoriesTabTitle => 'Kategoriler';
+
+  @override
+  String get tutorialCategoriesTabDesc => 'Finansınızı düzenlemek için kategorilerinizi buradan yönetin.';
+
+  @override
+  String get tutorialAddCategoryTitle => 'Kategori Ekle';
+
+  @override
+  String get tutorialAddCategoryDesc => 'Daha iyi takip için özel kategoriler oluşturun.';
+
+  @override
+  String get tutorialReportsTabTitle => 'Raporlar';
+
+  @override
+  String get tutorialReportsTabDesc => 'Finansal özetinizi ve grafiklerinizi buradan görüntüleyin.';
+
+  @override
+  String get tutorialReportsTitle => 'Raporlara Genel Bakış';
+
+  @override
+  String get tutorialReportsDesc => 'Harcama alışkanlıklarınızı detaylı grafiklerle analiz edin.';
+
+  @override
+  String get tutorialNext => 'İleri';
+
+  @override
+  String get tutorialFinish => 'Bitir';
 }

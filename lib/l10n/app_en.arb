@@ -57,5 +57,17 @@
   "total": "Total",
   "recurring": "Recurring",
   "isRecurring": "Is Recurring?",
-  "endDate": "End Date"
+  "endDate": "End Date",
+  "tutorialAddTransactionTitle": "Add Transaction",
+  "tutorialAddTransactionDesc": "Tap here to add your first income or expense.",
+  "tutorialCategoriesTabTitle": "Categories",
+  "tutorialCategoriesTabDesc": "Manage your categories here to organize your finances.",
+  "tutorialAddCategoryTitle": "Add Category",
+  "tutorialAddCategoryDesc": "Create custom categories for better tracking.",
+  "tutorialReportsTabTitle": "Reports",
+  "tutorialReportsTabDesc": "View your financial summary and charts here.",
+  "tutorialReportsTitle": "Reports Overview",
+  "tutorialReportsDesc": "Analyze your spending habits with detailed charts.",
+  "tutorialNext": "Next",
+  "tutorialFinish": "Finish"
 }

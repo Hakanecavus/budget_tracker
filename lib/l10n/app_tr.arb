@@ -57,5 +57,17 @@
   "total": "Toplam",
   "recurring": "Tekrarlayan",
   "isRecurring": "Tekrarlayan İşlem mi?",
-  "endDate": "Bitiş Tarihi"
+  "endDate": "Bitiş Tarihi",
+  "tutorialAddTransactionTitle": "İşlem Ekle",
+  "tutorialAddTransactionDesc": "İlk gelirinizi veya giderinizi eklemek için buraya dokunun.",
+  "tutorialCategoriesTabTitle": "Kategoriler",
+  "tutorialCategoriesTabDesc": "Finansınızı düzenlemek için kategorilerinizi buradan yönetin.",
+  "tutorialAddCategoryTitle": "Kategori Ekle",
+  "tutorialAddCategoryDesc": "Daha iyi takip için özel kategoriler oluşturun.",
+  "tutorialReportsTabTitle": "Raporlar",
+  "tutorialReportsTabDesc": "Finansal özetinizi ve grafiklerinizi buradan görüntüleyin.",
+  "tutorialReportsTitle": "Raporlara Genel Bakış",
+  "tutorialReportsDesc": "Harcama alışkanlıklarınızı detaylı grafiklerle analiz edin.",
+  "tutorialNext": "İleri",
+  "tutorialFinish": "Bitir"
 }

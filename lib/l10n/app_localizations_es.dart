@@ -183,4 +183,40 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get endDate => 'Fecha final';
+
+  @override
+  String get tutorialAddTransactionTitle => 'Agregar transacción';
+
+  @override
+  String get tutorialAddTransactionDesc => 'Toca aquí para agregar tu primer ingreso o gasto.';
+
+  @override
+  String get tutorialCategoriesTabTitle => 'Categorías';
+
+  @override
+  String get tutorialCategoriesTabDesc => 'Administra tus categorías aquí para organizar tus finanzas.';
+
+  @override
+  String get tutorialAddCategoryTitle => 'Agregar categoría';
+
+  @override
+  String get tutorialAddCategoryDesc => 'Crea categorías personalizadas para un mejor seguimiento.';
+
+  @override
+  String get tutorialReportsTabTitle => 'Informes';
+
+  @override
+  String get tutorialReportsTabDesc => 'Mira tu resumen financiero y gráficos aquí.';
+
+  @override
+  String get tutorialReportsTitle => 'Resumen de informes';
+
+  @override
+  String get tutorialReportsDesc => 'Analiza tus hábitos de gasto con gráficos detallados.';
+
+  @override
+  String get tutorialNext => 'Siguiente';
+
+  @override
+  String get tutorialFinish => 'Finalizar';
 }

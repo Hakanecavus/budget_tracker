@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:showcaseview/showcaseview.dart';
 import '../providers/transaction_provider.dart';
 import '../providers/category_provider.dart';
 import '../providers/currency_provider.dart';
@@ -12,7 +13,8 @@ import '../l10n/app_localizations.dart';
 import '../providers/locale_provider.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final GlobalKey? addTransactionKey;
+  const HomeScreen({super.key, this.addTransactionKey});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -63,11 +65,16 @@ class _HomeScreenState extends State<HomeScreen> {
         transitionBetweenRoutes: false,
         border: null,
         backgroundColor: appBarTheme.backgroundColor,
-        trailing: CupertinoButton(
-          padding: EdgeInsets.zero,
-          child: Icon(CupertinoIcons.add, color: appBarTheme.foregroundColor),
-          onPressed: () =>
-              _showAddTransactionDialog(_selectedDay ?? DateTime.now()),
+        trailing: Showcase(
+          key: widget.addTransactionKey ?? GlobalKey(),
+          title: l10n.tutorialAddTransactionTitle,
+          description: l10n.tutorialAddTransactionDesc,
+          child: CupertinoButton(
+            padding: EdgeInsets.zero,
+            child: Icon(CupertinoIcons.add, color: appBarTheme.foregroundColor),
+            onPressed: () =>
+                _showAddTransactionDialog(_selectedDay ?? DateTime.now()),
+          ),
         ),
       ),
       child: SafeArea(

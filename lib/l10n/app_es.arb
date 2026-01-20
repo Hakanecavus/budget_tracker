@@ -57,5 +57,17 @@
   "total": "Total",
   "recurring": "Recurrente",
   "isRecurring": "¿Es recurrente?",
-  "endDate": "Fecha final"
+  "endDate": "Fecha final",
+  "tutorialAddTransactionTitle": "Agregar transacción",
+  "tutorialAddTransactionDesc": "Toca aquí para agregar tu primer ingreso o gasto.",
+  "tutorialCategoriesTabTitle": "Categorías",
+  "tutorialCategoriesTabDesc": "Administra tus categorías aquí para organizar tus finanzas.",
+  "tutorialAddCategoryTitle": "Agregar categoría",
+  "tutorialAddCategoryDesc": "Crea categorías personalizadas para un mejor seguimiento.",
+  "tutorialReportsTabTitle": "Informes",
+  "tutorialReportsTabDesc": "Mira tu resumen financiero y gráficos aquí.",
+  "tutorialReportsTitle": "Resumen de informes",
+  "tutorialReportsDesc": "Analiza tus hábitos de gasto con gráficos detallados.",
+  "tutorialNext": "Siguiente",
+  "tutorialFinish": "Finalizar"
 }

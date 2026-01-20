@@ -183,4 +183,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get endDate => 'End Date';
+
+  @override
+  String get tutorialAddTransactionTitle => 'Add Transaction';
+
+  @override
+  String get tutorialAddTransactionDesc => 'Tap here to add your first income or expense.';
+
+  @override
+  String get tutorialCategoriesTabTitle => 'Categories';
+
+  @override
+  String get tutorialCategoriesTabDesc => 'Manage your categories here to organize your finances.';
+
+  @override
+  String get tutorialAddCategoryTitle => 'Add Category';
+
+  @override
+  String get tutorialAddCategoryDesc => 'Create custom categories for better tracking.';
+
+  @override
+  String get tutorialReportsTabTitle => 'Reports';
+
+  @override
+  String get tutorialReportsTabDesc => 'View your financial summary and charts here.';
+
+  @override
+  String get tutorialReportsTitle => 'Reports Overview';
+
+  @override
+  String get tutorialReportsDesc => 'Analyze your spending habits with detailed charts.';
+
+  @override
+  String get tutorialNext => 'Next';
+
+  @override
+  String get tutorialFinish => 'Finish';
 }

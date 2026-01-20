@@ -42,6 +42,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   fl_chart: ^0.67.0
+  showcaseview: ^3.0.0
 
 dev_dependencies:
   flutter_test:

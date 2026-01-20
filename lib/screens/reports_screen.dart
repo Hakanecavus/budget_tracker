@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
+import 'package:showcaseview/showcaseview.dart';
 import '../providers/transaction_provider.dart';
 import '../providers/category_provider.dart';
 import '../providers/locale_provider.dart';
@@ -11,7 +12,8 @@ import '../l10n/app_localizations.dart';
 import '../providers/currency_provider.dart';
 
 class ReportsScreen extends StatefulWidget {
-  const ReportsScreen({super.key});
+  final GlobalKey? reportsContentKey;
+  const ReportsScreen({super.key, this.reportsContentKey});
 
   @override
   State<ReportsScreen> createState() => _ReportsScreenState();
@@ -55,70 +57,75 @@ class _ReportsScreenState extends State<ReportsScreen> {
         backgroundColor: appBarTheme.backgroundColor,
       ),
       child: SafeArea(
-        child: NotificationListener<ScrollNotification>(
-          onNotification: (notification) => true,
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Month Picker
-                    CupertinoButton(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      color: isDark ? Colors.grey[800] : Colors.grey[200],
-                      child: Text(
-                        months[_selectedMonth - 1],
-                        style: TextStyle(
-                          color: isDark ? Colors.white : Colors.black,
+        child: Showcase(
+          key: widget.reportsContentKey ?? GlobalKey(),
+          title: l10n.tutorialReportsTitle,
+          description: l10n.tutorialReportsDesc,
+          child: NotificationListener<ScrollNotification>(
+            onNotification: (notification) => true,
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Month Picker
+                      CupertinoButton(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        color: isDark ? Colors.grey[800] : Colors.grey[200],
+                        child: Text(
+                          months[_selectedMonth - 1],
+                          style: TextStyle(
+                            color: isDark ? Colors.white : Colors.black,
+                          ),
                         ),
+                        onPressed: () => _showMonthPicker(context, months),
                       ),
-                      onPressed: () => _showMonthPicker(context, months),
+                      const SizedBox(width: 16),
+                      // Year Picker
+                      CupertinoButton(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        color: isDark ? Colors.grey[800] : Colors.grey[200],
+                        child: Text(
+                          _selectedYear.toString(),
+                          style: TextStyle(
+                            color: isDark ? Colors.white : Colors.black,
+                          ),
+                        ),
+                        onPressed: () => _showYearPicker(context, years),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: _buildPieCharts(
+                    transactionProvider,
+                    categoryProvider,
+                    currencyProvider,
+                    l10n,
+                  ),
+                ),
+                CupertinoTabBar(
+                  currentIndex: _currentTabIndex,
+                  onTap: (index) {
+                    setState(() {
+                      _currentTabIndex = index;
+                    });
+                  },
+                  items: [
+                    BottomNavigationBarItem(
+                      icon: const Icon(CupertinoIcons.arrow_up_circle),
+                      label: l10n.income,
                     ),
-                    const SizedBox(width: 16),
-                    // Year Picker
-                    CupertinoButton(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      color: isDark ? Colors.grey[800] : Colors.grey[200],
-                      child: Text(
-                        _selectedYear.toString(),
-                        style: TextStyle(
-                          color: isDark ? Colors.white : Colors.black,
-                        ),
-                      ),
-                      onPressed: () => _showYearPicker(context, years),
+                    BottomNavigationBarItem(
+                      icon: const Icon(CupertinoIcons.arrow_down_circle),
+                      label: l10n.expense,
                     ),
                   ],
                 ),
-              ),
-              Expanded(
-                child: _buildPieCharts(
-                  transactionProvider,
-                  categoryProvider,
-                  currencyProvider,
-                  l10n,
-                ),
-              ),
-              CupertinoTabBar(
-                currentIndex: _currentTabIndex,
-                onTap: (index) {
-                  setState(() {
-                    _currentTabIndex = index;
-                  });
-                },
-                items: [
-                  BottomNavigationBarItem(
-                    icon: const Icon(CupertinoIcons.arrow_up_circle),
-                    label: l10n.income,
-                  ),
-                  BottomNavigationBarItem(
-                    icon: const Icon(CupertinoIcons.arrow_down_circle),
-                    label: l10n.expense,
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

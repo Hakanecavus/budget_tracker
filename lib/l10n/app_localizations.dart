@@ -444,6 +444,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'End Date'**
   String get endDate;
+
+  /// No description provided for @tutorialAddTransactionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Transaction'**
+  String get tutorialAddTransactionTitle;
+
+  /// No description provided for @tutorialAddTransactionDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap here to add your first income or expense.'**
+  String get tutorialAddTransactionDesc;
+
+  /// No description provided for @tutorialCategoriesTabTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get tutorialCategoriesTabTitle;
+
+  /// No description provided for @tutorialCategoriesTabDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage your categories here to organize your finances.'**
+  String get tutorialCategoriesTabDesc;
+
+  /// No description provided for @tutorialAddCategoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Category'**
+  String get tutorialAddCategoryTitle;
+
+  /// No description provided for @tutorialAddCategoryDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Create custom categories for better tracking.'**
+  String get tutorialAddCategoryDesc;
+
+  /// No description provided for @tutorialReportsTabTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports'**
+  String get tutorialReportsTabTitle;
+
+  /// No description provided for @tutorialReportsTabDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'View your financial summary and charts here.'**
+  String get tutorialReportsTabDesc;
+
+  /// No description provided for @tutorialReportsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports Overview'**
+  String get tutorialReportsTitle;
+
+  /// No description provided for @tutorialReportsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyze your spending habits with detailed charts.'**
+  String get tutorialReportsDesc;
+
+  /// No description provided for @tutorialNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get tutorialNext;
+
+  /// No description provided for @tutorialFinish.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish'**
+  String get tutorialFinish;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
