@@ -73,4 +73,26 @@ class TransactionProvider with ChangeNotifier {
   }
 
   double get balance => totalIncome - totalExpense;
+
+  List<Transaction> getTransactionsForMonth(DateTime date) {
+    return _transactions.where((txn) {
+      return txn.date.year == date.year && txn.date.month == date.month;
+    }).toList();
+  }
+
+  double getIncomeForMonth(DateTime date) {
+    return getTransactionsForMonth(
+      date,
+    ).where((txn) => txn.isIncome).fold(0.0, (sum, txn) => sum + txn.amount);
+  }
+
+  double getExpenseForMonth(DateTime date) {
+    return getTransactionsForMonth(
+      date,
+    ).where((txn) => !txn.isIncome).fold(0.0, (sum, txn) => sum + txn.amount);
+  }
+
+  double getBalanceForMonth(DateTime date) {
+    return getIncomeForMonth(date) - getExpenseForMonth(date);
+  }
 }

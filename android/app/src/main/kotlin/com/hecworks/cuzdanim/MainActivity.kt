@@ -1,4 +1,4 @@
-package com.example.budget_tracker
+package com.hecworks.cuzdanim
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -13,7 +14,20 @@ class CurrencyProvider with ChangeNotifier {
 
   Future<void> _loadCurrency() async {
     final prefs = await SharedPreferences.getInstance();
-    _currency = prefs.getString(_currencyKey) ?? '\$';
+    String? savedCurrency = prefs.getString(_currencyKey);
+
+    if (savedCurrency == null) {
+      // First run: Check system locale
+      final String systemLanguage =
+          PlatformDispatcher.instance.locale.languageCode;
+      if (systemLanguage == 'tr') {
+        savedCurrency = '₺';
+      } else {
+        savedCurrency = '\$';
+      }
+    }
+
+    _currency = savedCurrency;
     notifyListeners();
   }
 

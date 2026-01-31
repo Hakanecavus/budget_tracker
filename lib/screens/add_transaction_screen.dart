@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
@@ -9,8 +10,10 @@ import '../providers/currency_provider.dart';
 import '../models/transaction.dart';
 import '../models/category.dart';
 import '../providers/locale_provider.dart';
-import '../providers/ad_provider.dart';
+// import '../providers/ad_provider.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/bottom_sheet_wrapper.dart';
+import '../widgets/date_picker_utils.dart';
 
 class AddTransactionSheet extends StatefulWidget {
   final DateTime selectedDate;
@@ -147,8 +150,8 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
     }
 
     // Trigger Ad Logic
-    final adProvider = Provider.of<AdProvider>(context, listen: false);
-    adProvider.incrementTransactionActionCount();
+    // final adProvider = Provider.of<AdProvider>(context, listen: false);
+    // adProvider.incrementTransactionActionCount();
 
     Navigator.of(context).pop();
   }
@@ -168,65 +171,15 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
           : cat.type == CategoryType.expense;
     }).toList();
 
-    // Bottom padding for keyboard and safe area
-    final bottomPadding =
-        MediaQuery.of(context).viewInsets.bottom +
-        MediaQuery.of(context).padding.bottom +
-        20;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1C1C1E) : Colors.white,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      padding: EdgeInsets.only(
-        top: 20,
-        left: 20,
-        right: 20,
-        bottom: bottomPadding,
-      ),
+    return BottomSheetWrapper(
+      title: widget.transaction == null
+          ? l10n.addTransaction
+          : l10n.editTransaction,
+      onClose: () => Navigator.of(context).pop(),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Drag Handle
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[400],
-                borderRadius: BorderRadius.circular(2),
-              ),
-              margin: const EdgeInsets.only(bottom: 20),
-            ),
-          ),
-
-          // Header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                widget.transaction == null
-                    ? l10n.addTransaction
-                    : l10n.editTransaction,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              GestureDetector(
-                onTap: () => Navigator.of(context).pop(),
-                child: CircleAvatar(
-                  radius: 15,
-                  backgroundColor: Colors.grey.withOpacity(0.2),
-                  child: const Icon(Icons.close, size: 18, color: Colors.grey),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-
           // Type Segmented Control
           SizedBox(
             width: double.infinity,
@@ -263,6 +216,9 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
             controller: _amountController,
             placeholder: l10n.amount,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+            ],
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: isDark ? const Color(0xFF2C2C2E) : const Color(0xFFF2F2F7),
@@ -289,7 +245,15 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
 
           // Date Picker Text
           GestureDetector(
-            onTap: () => _showDatePicker(context, localeProvider),
+            onTap: () => showCustomDatePicker(
+              context: context,
+              initialDate: _date,
+              onDateTimeChanged: (val) {
+                setState(() {
+                  _date = val;
+                });
+              },
+            ),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
@@ -372,8 +336,8 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
                                   boxShadow: isSelected
                                       ? [
                                           BoxShadow(
-                                            color: category.color.withOpacity(
-                                              0.4,
+                                            color: category.color.withValues(
+                                              alpha: 0.4,
                                             ),
                                             blurRadius: 8,
                                             spreadRadius: 2,
@@ -431,7 +395,16 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
             if (_isRecurring) ...[
               const SizedBox(height: 10),
               GestureDetector(
-                onTap: () => _showEndDatePicker(context, localeProvider),
+                onTap: () => showCustomDatePicker(
+                  context: context,
+                  initialDate: _endDate,
+                  minimumDate: _date,
+                  onDateTimeChanged: (val) {
+                    setState(() {
+                      _endDate = val;
+                    });
+                  },
+                ),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -501,60 +474,6 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  void _showDatePicker(BuildContext context, LocaleProvider localeProvider) {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (_) => Container(
-        height: 250,
-        color: Theme.of(context).scaffoldBackgroundColor,
-        child: Column(
-          children: [
-            SizedBox(
-              height: 250,
-              child: CupertinoDatePicker(
-                initialDateTime: _date,
-                mode: CupertinoDatePickerMode.date,
-                use24hFormat: true,
-                onDateTimeChanged: (val) {
-                  setState(() {
-                    _date = val;
-                  });
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showEndDatePicker(BuildContext context, LocaleProvider localeProvider) {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (_) => Container(
-        height: 250,
-        color: Theme.of(context).scaffoldBackgroundColor,
-        child: Column(
-          children: [
-            SizedBox(
-              height: 250,
-              child: CupertinoDatePicker(
-                initialDateTime: _endDate,
-                mode: CupertinoDatePickerMode.date,
-                minimumDate: _date,
-                onDateTimeChanged: (val) {
-                  setState(() {
-                    _endDate = val;
-                  });
-                },
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

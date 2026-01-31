@@ -8,17 +8,17 @@ import 'providers/theme_provider.dart';
 import 'providers/locale_provider.dart';
 import 'providers/currency_provider.dart';
 import 'providers/tutorial_provider.dart';
-import 'providers/ad_provider.dart';
+// import 'providers/ad_provider.dart';
 import 'screens/main_screen.dart';
 // import 'l10n/app_localizations.dart';
 
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
+// import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting();
-  await MobileAds.instance.initialize();
+  //await MobileAds.instance.initialize();
   runApp(const MyApp());
 }
 
@@ -36,11 +36,12 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => LocaleProvider()),
         ChangeNotifierProvider(create: (context) => CurrencyProvider()),
         ChangeNotifierProvider(create: (context) => TutorialProvider()),
-        ChangeNotifierProvider(create: (context) => AdProvider()),
+        // ChangeNotifierProvider(create: (context) => AdProvider()),
       ],
       child: Consumer2<ThemeProvider, LocaleProvider>(
         builder: (context, themeProvider, localeProvider, child) {
           return MaterialApp(
+            debugShowCheckedModeBanner: false,
             title: 'Cüzdanım',
             theme: themeProvider.lightTheme,
             darkTheme: themeProvider.darkTheme,

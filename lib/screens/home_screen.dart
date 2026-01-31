@@ -11,6 +11,8 @@ import 'add_transaction_screen.dart';
 import '../models/category.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/locale_provider.dart';
+import '../widgets/delete_dismissible_background.dart';
+import '../widgets/dialogs.dart';
 
 class HomeScreen extends StatefulWidget {
   final GlobalKey? addTransactionKey;
@@ -34,18 +36,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     // Calculate month-specific totals
-    final monthTransactions = transactionProvider.transactions.where((txn) {
-      return txn.date.year == _focusedDay.year &&
-          txn.date.month == _focusedDay.month;
-    }).toList();
-
-    final monthIncome = monthTransactions
-        .where((txn) => txn.isIncome)
-        .fold(0.0, (sum, txn) => sum + txn.amount);
-    final monthExpense = monthTransactions
-        .where((txn) => !txn.isIncome)
-        .fold(0.0, (sum, txn) => sum + txn.amount);
-    final monthBalance = monthIncome - monthExpense;
+    final monthIncome = transactionProvider.getIncomeForMonth(_focusedDay);
+    final monthExpense = transactionProvider.getExpenseForMonth(_focusedDay);
+    final monthBalance = transactionProvider.getBalanceForMonth(_focusedDay);
 
     // Localized calendar format names
     final calendarFormats = {
@@ -94,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withValues(alpha: 0.1),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),
@@ -126,7 +119,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 12),
-                      Container(height: 1, color: Colors.grey.withOpacity(0.3)),
+                      Container(
+                        height: 1,
+                        color: Colors.grey.withValues(alpha: 0.3),
+                      ),
                       const SizedBox(height: 12),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -350,33 +346,15 @@ class _HomeScreenState extends State<HomeScreen> {
         return Dismissible(
           key: Key(txn.id),
           direction: DismissDirection.endToStart,
-          background: Container(
-            color: Colors.red,
-            alignment: Alignment.centerRight,
-            padding: const EdgeInsets.only(right: 16),
-            child: const Icon(Icons.delete, color: Colors.white),
-          ),
+          background: const DeleteDismissibleBackground(),
           confirmDismiss: (direction) async {
             final l10nDialog = AppLocalizations.of(context)!;
-            return await showCupertinoDialog(
+            return await showDeleteConfirmationDialog(
               context: context,
-              builder: (BuildContext context) {
-                return CupertinoAlertDialog(
-                  title: Text(l10nDialog.confirmDelete),
-                  content: Text(l10nDialog.confirmDeleteTransaction),
-                  actions: [
-                    CupertinoDialogAction(
-                      onPressed: () => Navigator.of(context).pop(false),
-                      child: Text(l10nDialog.cancel),
-                    ),
-                    CupertinoDialogAction(
-                      onPressed: () => Navigator.of(context).pop(true),
-                      isDestructiveAction: true,
-                      child: Text(l10nDialog.delete),
-                    ),
-                  ],
-                );
-              },
+              title: l10nDialog.confirmDelete,
+              content: l10nDialog.confirmDeleteTransaction,
+              deleteText: l10nDialog.delete,
+              cancelText: l10nDialog.cancel,
             );
           },
           onDismissed: (direction) {

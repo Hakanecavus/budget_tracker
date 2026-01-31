@@ -6,6 +6,9 @@ import 'package:showcaseview/showcaseview.dart';
 import '../providers/category_provider.dart';
 import '../models/category.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/bottom_sheet_wrapper.dart';
+import '../widgets/delete_dismissible_background.dart';
+import '../widgets/dialogs.dart';
 
 class CategoryScreen extends StatefulWidget {
   final GlobalKey? addCategoryKey;
@@ -101,32 +104,14 @@ class _CategoryScreenState extends State<CategoryScreen> {
         return Dismissible(
           key: Key(category.id),
           direction: DismissDirection.endToStart,
-          background: Container(
-            color: Colors.red,
-            alignment: Alignment.centerRight,
-            padding: const EdgeInsets.only(right: 16),
-            child: const Icon(Icons.delete, color: Colors.white),
-          ),
+          background: const DeleteDismissibleBackground(),
           confirmDismiss: (direction) async {
-            return await showCupertinoDialog(
+            return await showDeleteConfirmationDialog(
               context: context,
-              builder: (BuildContext context) {
-                return CupertinoAlertDialog(
-                  title: Text(l10n.confirmDelete),
-                  content: Text(l10n.confirmDeleteCategory(category.name)),
-                  actions: [
-                    CupertinoDialogAction(
-                      onPressed: () => Navigator.of(context).pop(false),
-                      child: Text(l10n.cancel),
-                    ),
-                    CupertinoDialogAction(
-                      onPressed: () => Navigator.of(context).pop(true),
-                      isDestructiveAction: true,
-                      child: Text(l10n.delete),
-                    ),
-                  ],
-                );
-              },
+              title: l10n.confirmDelete,
+              content: l10n.confirmDeleteCategory(category.name),
+              deleteText: l10n.delete,
+              cancelText: l10n.cancel,
             );
           },
           onDismissed: (direction) {
@@ -218,68 +203,22 @@ class _AddCategorySheetState extends State<AddCategorySheet> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bottomPadding =
-        MediaQuery.of(context).viewInsets.bottom +
-        MediaQuery.of(context).padding.bottom +
-        20;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1C1C1E) : Colors.white,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      padding: EdgeInsets.only(
-        bottom: bottomPadding,
-        left: 20,
-        right: 20,
-        top: 10,
-      ),
+    return BottomSheetWrapper(
+      title: l10n.addCategory,
+      onClose: () => Navigator.of(context).pop(),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Handle bar
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: 20),
-              decoration: BoxDecoration(
-                color: Colors.grey[400],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-
-          // Header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                l10n.addCategory,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-
           // Name Input
-          TextField(
+          CupertinoTextField(
             controller: _nameController,
-            decoration: InputDecoration(
-              labelText: l10n.categoryName,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              filled: true,
-              fillColor: isDark ? Colors.grey[800] : Colors.grey[100],
+            placeholder: l10n.categoryName,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: isDark ? Colors.grey[800] : Colors.grey[100],
+              borderRadius: BorderRadius.circular(12),
             ),
             textCapitalization: TextCapitalization.sentences,
           ),

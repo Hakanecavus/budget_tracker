@@ -8,13 +8,18 @@ class Category {
   final Color color;
   final CategoryType type;
 
-  Category({required this.id, required this.name, required this.color, required this.type});
+  Category({
+    required this.id,
+    required this.name,
+    required this.color,
+    required this.type,
+  });
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'name': name,
-      'color': color.value,
+      'color': color.toARGB32(),
       'type': type.index,
     };
   }
